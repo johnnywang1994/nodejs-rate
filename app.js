@@ -6,6 +6,8 @@ const app = express();
 const superagent = require('superagent');
 const cheerio = require('cheerio');
 
+app.set('port', process.env.PORT || 8080);
+
 app.get('/', function(req, res, next){
   // console.log(req);
   superagent.get('https://rate.bot.com.tw/xrt?Lang=zh-TW')
@@ -35,6 +37,6 @@ app.get('/', function(req, res, next){
     });
 });
 
-app.listen(3000, function(){
-  console.log('Express Server listening on port: 3000');
+app.listen(app.get('port'), function(){
+  console.log('Express Server listening on port: '+app.get('port'));
 });

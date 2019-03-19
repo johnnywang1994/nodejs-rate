@@ -23,7 +23,7 @@
     <script>
       window.onload = function(){
         var getData = function(success){
-          fetch('http://localhost:8080/rate')
+          fetch('https://nodejs-rate.herokuapp.com/rate')
             .then((res)=>{
               return res.json();
             }).then((res)=>{

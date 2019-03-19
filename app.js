@@ -8,7 +8,7 @@ const cheerio = require('cheerio');
 
 app.set('port', process.env.PORT || 8080);
 
-app.get('./', function(req, res, next){
+app.get('/', function(req, res, next){
   // console.log(req);
   superagent.get('https://rate.bot.com.tw/xrt?Lang=zh-TW')
     .end((err, data)=>{

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>台灣銀行匯率</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+    .unvisible {
+      display: none;
+    }
+    </style>
+  </head>
+  <body>
+    <div id="searchBox">
+      <label for="search">搜尋幣別：</label>
+      <input type="text" id="search" onkeyup="filter(this);">
+    </div>
+    <div>
+      <table id="rate_table"></table>
+    </div>
+    
+    <script>
+      window.onload = function(){
+        var getData = function(success){
+          fetch('http://localhost:8080/rate')
+            .then((res)=>{
+              return res.json();
+            }).then((res)=>{
+              success(res);
+          })
+        };
+        getData(function(res){
+          var rate_table = document.getElementById('rate_table');
+          var html = '<tr><th>幣別</th><th>本行現金買入</th><th>本行現金賣出</th><th>本行即期買入</th><th>本行即期賣出</th></tr>';
+          for (let i in res.data) {
+            html += `
+              <tr class="dollar-row">
+                <td class="dollar-title">${res.data[i].title}</td>
+                <td>${res.data[i].cash.buy}</td>
+                <td>${res.data[i].cash.sale}</td>
+                <td>${res.data[i].recent.buy}</td>
+                <td>${res.data[i].recent.sale}</td>
+              </tr>
+            `;
+          };
+          rate_table.innerHTML = html;
+        });
+      };
+      var filter = function(dollar){
+        var rows = document.getElementsByClassName('dollar-row');
+        var titles = document.getElementsByClassName('dollar-title');
+        for (let i=0;i<rows.length;i++){
+          if (titles[i].innerHTML.indexOf(dollar.value) === -1){
+            rows[i].classList.add('unvisible');
+          } else {
+            rows[i].classList.remove('unvisible');
+          }
+        }
+      };
+    </script>
+  </body>
+</html>

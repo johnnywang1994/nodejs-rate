@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const path = require('path');
 
 // superagent 請求套件: 爬取 DOM
 // cheerio 類 JQuery 套件: 模擬 JQuery 控制抓取的 DOM
@@ -8,7 +9,11 @@ const cheerio = require('cheerio');
 
 app.set('port', process.env.PORT || 8080);
 
-app.get('/', function(req, res, next){
+app.get('/', function(req, res){
+  res.sendFile(path.resolve(__dirname, 'index.html'));
+});
+
+app.get('/rate', function(req, res, next){
   // console.log(req);
   superagent.get('https://rate.bot.com.tw/xrt?Lang=zh-TW')
     .end((err, data)=>{
@@ -23,17 +28,23 @@ app.get('/', function(req, res, next){
         items.push({
           title: $element.children('td[data-table="幣別"]').find('.hidden-phone').text().trim(),
           cash: {
-            buy: $element.children('td[data-table="本行現金買入"]').text(),
-            sale: $element.children('td[data-table="本行現金賣出"]').text()
+            buy: $element.children('td[data-table="本行現金買入"]').eq(0).text(),
+            sale: $element.children('td[data-table="本行現金賣出"]').eq(0).text()
           },
           recent: {
-            buy: $element.children('td[data-table="本行即期買入"]').text(),
-            sale: $element.children('td[data-table="本行即期賣出"]').text()
+            buy: $element.children('td[data-table="本行即期買入"]').eq(0).text(),
+            sale: $element.children('td[data-table="本行即期賣出"]').eq(0).text()
           }
         });
       });
+      var output = {
+        status: 200,
+        message: '台灣銀行匯率資料',
+        updatetime: $('p.text-info').find('.time').text(),
+        data: items
+      };
 
-      res.send(items);
+      res.send(output);
     });
 });
 

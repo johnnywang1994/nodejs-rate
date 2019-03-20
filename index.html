@@ -5,36 +5,129 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>台灣銀行匯率</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <style>
     .unvisible {
       display: none;
     }
+
+    #rate_change {
+      max-width: 800px;
+      margin: 30px auto 0;
+    }
+
+    #searchBox {
+      max-width: 400px;
+      margin: 10px auto 30px;
+    }
+
+    #rate_table_wrapper {
+      overflow: auto;
+      max-width: 100%;
+    }
+    #rate_table {
+      width: 100%;
+    }
+    #rate_table {
+      text-align: center;
+    }
+    #rate_table th,
+    #rate_table td {
+      padding: 5px;
+    }
+    .table-striped tbody tr:nth-of-type(odd) {
+      background: rgb(231, 255, 242);
+    }
+    .table-hover tbody tr:hover {
+      color: #212529;
+      background-color: rgba(0,0,0,.075);
+    }
     </style>
   </head>
   <body>
-    <div id="searchBox">
-      <label for="search">搜尋幣別：</label>
-      <input type="text" id="search" onkeyup="filter(this);">
+    <div class="container">
+      <div id="rate_change">
+        <form class="form-inline">
+          <select id="change_type" class="form-control mr-2" style="width: 130px;">
+            <option value="cash">現金交易</option>
+            <option value="recent">網路交易</option>
+          </select>
+          <select id="dollar_type_input" class="form-control mr-2" style="width: 130px;"></select>
+          <input type="text" id="input_dollar" class="form-control" style="width: 130px;" placeholder="輸入金額">
+          <div class="mx-2">兌換為</div>
+          <select id="dollar_type_output" class="form-control mr-2" style="width: 130px;"></select>
+          <div id="output_dollar" class="form-control" style="width: 130px;"></div>元
+        </form>
+      </div>
+      <div id="searchBox" class="row">
+        <label for="search" style="width: 100px;">搜尋幣別：</label>
+        <input type="text" id="search" class="form-control" onkeyup="filter(this);">
+      </div>
+      <div id="rate_table_wrapper">
+        <table id="rate_table" class="table table-striped table-hover"></table>
+      </div>
     </div>
-    <div>
-      <table id="rate_table"></table>
-    </div>
+    
     
     <script>
       window.onload = function(){
+        // AJAX DATA
+        var data;
         var getData = function(success){
-          fetch('https://nodejs-rate.herokuapp.com/rate')
+          fetch('http://localhost:8080/rate')
             .then((res)=>{
               return res.json();
             }).then((res)=>{
               success(res);
           })
         };
+        var fresh = function(res){
+          var dollar_type_input = document.getElementById('dollar_type_input');
+          var dollar_type_output = document.getElementById('dollar_type_output');
+          var change_type = document.getElementById('change_type').value;
+          var html_input = '<option value="1">台幣 (TWD)</option>';
+          var html_output = '<option value="1">台幣 (TWD)</option>';
+          for (let i in res.data) {
+            if (change_type === 'cash') {
+              var cash_buy = res.data[i].cash.buy;
+              var cash_sale = res.data[i].cash.sale;
+              if (cash_buy === '-') {
+                html_input += `<option value="${cash_buy}" disabled>${res.data[i].title}</option>`;
+                html_output += `<option value="${cash_sale}" disabled>${res.data[i].title}</option>`;
+              } else {
+                html_input += `<option value="${cash_buy}">${res.data[i].title}</option>`;
+                html_output += `<option value="${cash_sale}">${res.data[i].title}</option>`;
+              }
+            } else if (change_type === 'recent') {
+              var recent_buy = res.data[i].recent.buy;
+              var recent_sale = res.data[i].recent.sale;
+              if (recent_buy === '-') {
+                html_input += `<option value="${recent_buy}" disabled>${res.data[i].title}</option>`;
+                html_output += `<option value="${recent_sale}" disabled>${res.data[i].title}</option>`;
+              } else {
+                html_input += `<option value="${recent_buy}">${res.data[i].title}</option>`;
+                html_output += `<option value="${recent_sale}">${res.data[i].title}</option>`;
+              }
+            }
+          }
+          dollar_type_input.innerHTML = html_input;
+          dollar_type_output.innerHTML = html_output;
+        };
+        var freshOutput = function(){
+          var input_dollar = document.getElementById('input_dollar');
+          var output_dollar = document.getElementById('output_dollar');
+          var dollar_type_input = document.getElementById('dollar_type_input');
+          var dollar_type_output = document.getElementById('dollar_type_output');
+          var num = new Number(input_dollar.value * dollar_type_input.value / dollar_type_output.value);
+          output_dollar.innerHTML = num.toFixed(4);
+        };
         getData(function(res){
           var rate_table = document.getElementById('rate_table');
-          var html = '<tr><th>幣別</th><th>本行現金買入</th><th>本行現金賣出</th><th>本行即期買入</th><th>本行即期賣出</th></tr>';
+          var html_table = '<thead class="thead-dark"><tr><th>幣別</th><th>本行現金買入</th><th>本行現金賣出</th><th>本行即期買入</th><th>本行即期賣出</th></tr></thead>';
+          var html_dollar_types;
+          data = res;
           for (let i in res.data) {
-            html += `
+            html_table += `
               <tr class="dollar-row">
                 <td class="dollar-title">${res.data[i].title}</td>
                 <td>${res.data[i].cash.buy}</td>
@@ -44,9 +137,20 @@
               </tr>
             `;
           };
-          rate_table.innerHTML = html;
+          rate_table.innerHTML = html_table;
+          fresh(res);
         });
+        
+        // change_type event
+        var change_type = document.getElementById('change_type');
+        change_type.onchange = function(){ fresh(data); };
+
+        // change_input event
+        document.getElementById('input_dollar').onkeyup = function(){ freshOutput();};
+        document.getElementById('dollar_type_input').onchange = function(){ freshOutput();};
+        document.getElementById('dollar_type_output').onchange = function(){ freshOutput();};
       };
+
       var filter = function(dollar){
         var rows = document.getElementsByClassName('dollar-row');
         var titles = document.getElementsByClassName('dollar-title');

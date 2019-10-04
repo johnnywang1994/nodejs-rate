@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>API Tool</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"></script>
+</head>
+<body>
+  <!-- App -->
+  <div id="app" class="container">
+
+    <!--Control Panel-->
+    <div class="form-inline mt-4" style="max-width: 300px;">
+      <input type="text" 
+        class="form-control mr-2" 
+        style="width: 230px;"
+        v-model="searchStr"
+        placeholder="請輸入代號，如2882,2887"
+      >
+      <button class="btn btn-primary" @click="search">刷新</button>
+    </div>
+    <!--Control Panel End-->
+
+    <!--Loading-->
+    <div v-if="loading">Now Loading...</div>
+    <!--Loading End-->
+
+    <div class="row my-5">
+      <!--Stock Unit-->
+      <div class="stock-unit col-md-3 col-sm-6 col-12" 
+        v-for="item in stockInfo.data" 
+        :key="item.name"
+      >
+        <table class="table table-sm">
+          <tr class="table-active"><th>簡稱</th><td>{{ item.name }}</td></tr>
+          <tr><th>單量</th><td>{{ item.unit }}</td></tr>
+          <tr><th>成交價</th><td>{{ item['now-price'] }}</td></tr>
+          <tr><th>昨收價</th><td>{{ item['yesterday-price'] }}</td></tr>
+          <tr><th>最低價</th><td>{{ item['low-price'] }}</td></tr>
+          <tr><th>最高價</th><td>{{ item['high-price'] }}</td></tr>
+          <tr><th>漲跌</th><td>{{ item['percent'] }}</td></tr>
+          <tr><th>總量</th><td>{{ item['total'] }}</td></tr>
+          <tr><th>開盤價</th><td>{{ item['open-price'] }}</td></tr>
+        </table>
+      </div>
+      <!--Stock Unit End-->
+    </div>
+    
+  </div>
+  <!-- App End -->
+
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        loading: false,
+        searchStr: '',
+        stockInfo: {}
+      },
+      methods: {
+        search() {
+          this.stockInfo = {}
+          this.loading = true
+          fetch(`/api/stock/?no=${this.searchStr}`)
+            .then(res => res.json())
+            .then(res => {
+              this.loading = false
+              this.stockInfo = res
+            });
+        }
+      }
+    })
+  </script>
+</body>
+</html>

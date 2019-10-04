@@ -1,20 +1,14 @@
 const express = require('express');
-const app = express();
-const path = require('path');
+const app = express.Router();
 
-// superagent 請求套件: 爬取 DOM
+
+// superagent 請求套件: 爬取靜態 DOM
 // cheerio 類 JQuery 套件: 模擬 JQuery 控制抓取的 DOM
 const superagent = require('superagent');
 const cheerio = require('cheerio');
 
-app.set('port', process.env.PORT || 8080);
 
-app.get('/', function(req, res){
-  res.sendFile(path.resolve(__dirname, 'index.html'));
-});
-
-app.get('/rate', function(req, res, next){
-  // console.log(req);
+app.get('/', function(req, res, next){
   superagent.get('https://rate.bot.com.tw/xrt?Lang=zh-TW')
     .end((err, data)=>{
       if (err) throw err;
@@ -41,13 +35,13 @@ app.get('/rate', function(req, res, next){
         status: 200,
         message: '台灣銀行匯率資料',
         updatetime: $('p.text-info').find('.time').text(),
-        data: items
+        data: items.filter((item, index) => { // 去除重複
+          return items.indexOf(item) === index
+        })
       };
 
       res.send(output);
     });
 });
 
-app.listen(app.get('port'), function(){
-  console.log('Express Server listening on port: '+app.get('port'));
-});
+module.exports = app

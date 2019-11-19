@@ -26,11 +26,15 @@
 
 no參數可以帶入多個股票代號，/stock/?no=2882,2887
 
-2. /rate
+2. /stock-pressure/?no=XXX&month=1
+
+no參數只可帶入單一股票代號，預設為 6 日表，當 month 為 1 時，返回 24 日表。
+
+3. /rate
 
 返回台灣銀行匯率資訊
 
-3. /money-news
+4. /money-news
 
 源自經濟日報新聞
  
@@ -38,7 +42,7 @@ no參數可以帶入多個股票代號，/stock/?no=2882,2887
 
   - /break/1: 第一頁即時新聞
 
-4. /webtoon
+5. /webtoon
 
 line webtoon 漫畫資料
 

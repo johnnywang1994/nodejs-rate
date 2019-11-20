@@ -13,6 +13,10 @@ app.use('/gitbook', express.static(path.resolve(__dirname, '../gitbook/_book')))
 app.use('/api', apiRouter);
 
 
+app.get('*', (req, res) => {
+  res.end('Error 404, Page not found...');
+});
+
 
 app.listen(app.get('port'), function(){
   console.log('Express Server listening on port: '+app.get('port'));

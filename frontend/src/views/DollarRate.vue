@@ -1,21 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>API Tool</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
-  <style>
-    .unvisible {
-      display: none;
-    }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"></script>
-</head>
-<body>
+<template>
   <!-- App -->
-  <div id="app" class="container">
+  <div id="dollar-rate" class="container">
 
     <!--Control Panel-->
     <div class="my-4">
@@ -33,8 +18,9 @@
         </select>
         <select class="form-control" v-model.number="exchange.rate.from">
           <option value="1">台幣（NTD）</option>
-          <option v-for="item in rateInfo.data" 
-            :value="item[cashType].buy" 
+          <option v-for="item in rateInfo.data"
+            :key="'1'+item.title"
+            :value="item[cashType].buy"
             :disabled="item[cashType].buy === '-'"
           >{{ item.title }}</option>
         </select>
@@ -42,7 +28,8 @@
         -->
         <select class="form-control" v-model="exchange.rate.to">
           <option value="1">台幣（NTD）</option>
-          <option v-for="item in rateInfo.data" 
+          <option v-for="item in rateInfo.data"
+            :key="'2'+item.title"
             :value="item[cashType].sale"
             :disabled="item[cashType].sale === '-'"
           >{{ item.title }}</option>
@@ -76,56 +63,65 @@
 
   </div>
   <!-- App End -->
+</template>
 
-  <script>
-    new Vue({
-      el: '#app',
-      data: {
-        loading: true,
-        filteValue: '',
-        cashType: 'cash',
-        exchange: {
-          rate: {
-            from: 1,
-            to: 1
-          },
-          quality: 0
-        },
-        rateInfo: {}
-      },
-      computed: {
-        exchangeResult() {
-          const ex = this.exchange
-          return ((ex.rate.from * ex.quality) / ex.rate.to).toFixed(2)
-        }
-      },
-      methods: {
-        search() {
-          fetch('/api/rate')
-            .then(res => res.json())
-            .then(res => {
-              this.rateInfo = res
-              this.loading = false
-            });
-        },
-        filter(){
-          const vm = this
+<script>
+import { mapActions } from 'vuex';
 
-          let rows = document.getElementsByClassName('dollar-row');
-          let titles = document.getElementsByClassName('dollar-title');
-          for (let i=0;i<rows.length;i++){
-            if (titles[i].innerHTML.indexOf(vm.filteValue) === -1){
-              rows[i].classList.add('unvisible');
-            } else {
-              rows[i].classList.remove('unvisible');
-            }
-          }
-        }
+export default {
+  data() {
+    return {
+      loading: true,
+      filteValue: '',
+      cashType: 'cash',
+      exchange: {
+        rate: {
+          from: 1,
+          to: 1
+        },
+        quality: 0
       },
-      mounted() {
-        this.search()
+      rateInfo: {}
+    }
+  },
+  computed: {
+    exchangeResult() {
+      const ex = this.exchange
+      return ((ex.rate.from * ex.quality) / ex.rate.to).toFixed(2)
+    }
+  },
+  methods: {
+    ...mapActions('App', ['getRate']),
+    search() {
+      this.getRate()
+        .then(res => {
+          if (res.data.msg) return alert(res.data.msg);
+          this.rateInfo = res.data
+          this.loading = false
+        });
+    },
+    filter(){
+      const vm = this
+
+      let rows = document.getElementsByClassName('dollar-row');
+      let titles = document.getElementsByClassName('dollar-title');
+      for (let i=0;i<rows.length;i++){
+        if (titles[i].innerHTML.indexOf(vm.filteValue) === -1){
+          rows[i].classList.add('unvisible');
+        } else {
+          rows[i].classList.remove('unvisible');
+        }
       }
-    })
-  </script>
-</body>
-</html>
+    }
+  },
+  mounted() {
+    this.search()
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.unvisible {
+  display: none;
+}
+</style>

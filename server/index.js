@@ -1,14 +1,17 @@
+const path = require('path')
 const express = require('express')
 const app = express()
-const viewRouter = require('./view-router')
 const apiRouter = require('./api-router')
 
 
 app.set('port', process.env.PORT || 8080);
 
-app.use('/', viewRouter)
+app.use('/', express.static(path.resolve(__dirname, '../frontend/dist')));
 
-app.use('/api', apiRouter)
+app.use('/gitbook', express.static(path.resolve(__dirname, '../gitbook/_book')));
+
+app.use('/api', apiRouter);
+
 
 
 app.listen(app.get('port'), function(){

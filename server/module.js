@@ -32,5 +32,9 @@ module.exports = {
   
       await instance.exit();
     })();
+  },
+  gitbookErrorHandler(res, err, msg) {
+    console.error(err);
+    res.end(JSON.stringify({ msg }));
   }
 }

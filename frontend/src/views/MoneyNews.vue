@@ -1,17 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>API Tool</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"></script>
-</head>
-<body>
-
+<template>
   <!--App-->
-  <div id="app" class="container mt-4">
+  <div id="money-news" class="container mt-4">
     <!--Type Navbar-->
     <div class="btn-group d-flex justify-content-center my-3">
       <button class="btn btn-success" 
@@ -63,11 +52,14 @@
     <!--News Block End-->
   </div>
   <!--App End-->
+</template>
 
-  <script>
-  new Vue({
-    el: '#app',
-    data: {
+<script>
+import { mapActions } from 'vuex';
+
+export default {
+  data() {
+    return {
       loading: {
         first: true,
         break: true
@@ -76,52 +68,56 @@
       breakNews: [],
       page: 1,
       breakType: '不分類'
-    },
-    computed: {
-      breakTypeFilter() {
-        if (this.breakType === '不分類') return this.breakNews;
+    };
+  },
+  computed: {
+    breakTypeFilter() {
+      if (this.breakType === '不分類') return this.breakNews;
 
-        return this.breakNews.filter(news => {
-          return news.type === this.breakType;
+      return this.breakNews.filter(news => {
+        return news.type === this.breakType;
+      })
+    },
+    breakNewsTypes() {
+      let types = []
+
+      this.breakNews.forEach(news => {
+        return types.push(news.type)
+      })
+
+      return ['不分類', ...new Set(types)]
+    }
+  },
+  methods: {
+    ...mapActions('App', ['getFirstMoneyNews', 'getBreakMoneyNews']),
+    getFirst() {
+      this.getFirstMoneyNews()
+        .then((res) => {
+          this.firstNews = res.data.data
+          this.loading.first = false
         })
-      },
-      breakNewsTypes() {
-        let types = []
-
-        this.breakNews.forEach(news => {
-          return types.push(news.type)
+    },
+    getBreak(page) {
+      this.loading.break = true
+      this.getBreakMoneyNews(page)
+        .then(res => {
+          this.breakNews = res.data.data
+          this.loading.break = false
         })
-
-        return ['不分類', ...new Set(types)]
-      }
     },
-    methods: {
-      getFirst() {
-        fetch('/api/money-news/first').then(res=>res.json())
-          .then(res => {
-            this.firstNews = res.data
-            this.loading.first = false
-          })
-      },
-      getBreak(page) {
-        this.loading.break = true
-        fetch(`/api/money-news/break/${page}`).then(res=>res.json())
-          .then(res => {
-            this.breakNews = res.data
-            this.loading.break = false
-          })
-      },
-      changePage(next = true) {
-        if (!next && this.page === 1) return alert('已經無上一頁');
-        next ? this.page++ : this.page--;
-        this.getBreak(this.page)
-      }
-    },
-    mounted() {
-      this.getFirst()
+    changePage(next = true) {
+      if (!next && this.page === 1) return alert('已經無上一頁');
+      next ? this.page++ : this.page--;
       this.getBreak(this.page)
     }
-  })
-  </script>
-</body>
-</html>
+  },
+  mounted() {
+    this.getFirst()
+    this.getBreak(this.page)
+  }
+}
+</script>
+
+<style>
+
+</style>

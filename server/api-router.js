@@ -4,7 +4,8 @@ const stockAPI = require('./api/stock')
 const stockPressAPI = require('./api/stock-pressure')
 const rateAPI = require('./api/dollar-rate')
 const moneyNewsAPI = require('./api/money-udn')
-const webtoonAPI = require('./api/webtoon')
+const gitbookAPI = require('./api/gitbook')
+
 
 app.get('/', (req, res) => {
   res.end('Please enter API name...')
@@ -18,7 +19,7 @@ app.use('/rate', rateAPI)
 
 app.use('/money-news', moneyNewsAPI)
 
-app.use('/webtoon', webtoonAPI)
+app.use('/book', gitbookAPI)
 
 
 module.exports = app

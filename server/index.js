@@ -8,8 +8,6 @@ app.set('port', process.env.PORT || 8080);
 
 app.use('/', express.static(path.resolve(__dirname, '../frontend/dist')));
 
-app.use('/gitbook', express.static(path.resolve(__dirname, '../gitbook/_book')));
-
 app.use('/api', apiRouter);
 
 

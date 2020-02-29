@@ -36,17 +36,4 @@ export default {
   getBreakMoneyNews(page) {
     return api('get', `money-news/break/${page}`)
   },
-  getGitbookContent(filepath) {
-    return api('get', 'book', {
-      path: filepath
-    });
-  },
-  postGitbookContent(data) {
-    return api('post', 'book', data);
-  },
-  deleteGitbookContent(filepath) {
-    return api('delete', 'book', {
-      path: filepath
-    })
-  }
 };

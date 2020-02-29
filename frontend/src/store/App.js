@@ -29,18 +29,6 @@ const $_actions = {
     const res = await services.getBreakMoneyNews(page);
     return res;
   },
-  async getGitbookContent(context, filepath) {
-    const res = await services.getGitbookContent(filepath);
-    return res;
-  },
-  async postGitbookContent(context, data) {
-    const res = await services.postGitbookContent(data);
-    return res;
-  },
-  async deleteGitbookContent(context, filepath) {
-    const res = await services.deleteGitbookContent(filepath);
-    return res;
-  }
 };
 
 

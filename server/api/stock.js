@@ -30,6 +30,7 @@ app.get('/', (req, res) => {
     }
 
     stockInfo.forEach(stock => {
+      console.log(stock);
       let buyList = {};
       let sellList = {};
       let buyPriceList = stock['b'].split('_');
@@ -45,14 +46,14 @@ app.get('/', (req, res) => {
 
       result['data'].push({
         'name': stock['n'] + stock['c'],
-        'now-price': stock['z'],
+        'now-price': stock['b'].slice(0, 7),
         'unit': stock['tv'],
         'total': stock['v'],
         'open-price': stock['o'],
         'high-price': stock['h'],
         'low-price': stock['l'],
         'yesterday-price': stock['y'],
-        'percent': changeCount(stock['z'], stock['y']),
+        'percent': changeCount(stock['b'].slice(0, 7), stock['y']),
         'buyList': buyList,
         'sellList': sellList,
       })
